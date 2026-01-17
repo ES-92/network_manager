@@ -47,6 +47,9 @@ impl ServiceDiscovery for SystemdDiscovery {
                         path: None,
                         description: parts.get(4..).map(|p| p.join(" ")),
                         auto_start: parts.get(1).map(|s| *s == "enabled").unwrap_or(false),
+                        cpu_usage: None,
+                        memory_bytes: None,
+                        memory_percent: None,
                     })
                 } else {
                     None

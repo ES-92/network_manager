@@ -50,6 +50,9 @@ impl ServiceDiscovery for WindowsServiceDiscovery {
                         path: None,
                         description: display_name,
                         auto_start: false,
+                        cpu_usage: None,
+                        memory_bytes: None,
+                        memory_percent: None,
                     })
                 })
                 .collect()

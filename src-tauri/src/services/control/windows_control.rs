@@ -65,4 +65,40 @@ impl ServiceControl for WindowsControl {
     fn can_handle(&self, service_type: &str) -> bool {
         service_type == "windows_service"
     }
+
+    #[cfg(target_os = "windows")]
+    async fn enable_autostart(&self, service_id: &str) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        let output = Command::new("sc")
+            .args(["config", service_id, "start=", "auto"])
+            .output()?;
+
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            return Err(format!("Failed to enable autostart: {}", stderr).into());
+        }
+        Ok(())
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    async fn enable_autostart(&self, _service_id: &str) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        Err("Windows services not available on this platform".into())
+    }
+
+    #[cfg(target_os = "windows")]
+    async fn disable_autostart(&self, service_id: &str) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        let output = Command::new("sc")
+            .args(["config", service_id, "start=", "demand"])
+            .output()?;
+
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            return Err(format!("Failed to disable autostart: {}", stderr).into());
+        }
+        Ok(())
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    async fn disable_autostart(&self, _service_id: &str) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        Err("Windows services not available on this platform".into())
+    }
 }

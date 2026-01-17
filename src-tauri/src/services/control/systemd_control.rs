@@ -63,4 +63,28 @@ impl ServiceControl for SystemdControl {
     fn can_handle(&self, service_type: &str) -> bool {
         service_type == "systemd"
     }
+
+    async fn enable_autostart(&self, service_id: &str) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        let output = Command::new("systemctl")
+            .args(["enable", service_id])
+            .output()?;
+
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            return Err(format!("Failed to enable autostart: {}", stderr).into());
+        }
+        Ok(())
+    }
+
+    async fn disable_autostart(&self, service_id: &str) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        let output = Command::new("systemctl")
+            .args(["disable", service_id])
+            .output()?;
+
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            return Err(format!("Failed to disable autostart: {}", stderr).into());
+        }
+        Ok(())
+    }
 }
