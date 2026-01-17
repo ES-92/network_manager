@@ -6,6 +6,9 @@ on:
       - 'v*'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     strategy:
@@ -20,10 +23,10 @@ jobs:
             target: x86_64-apple-darwin
           - platform: ubuntu-22.04
             args: ''
-            target: x86_64-unknown-linux-gnu
+            target: ''
           - platform: windows-latest
             args: ''
-            target: x86_64-pc-windows-msvc
+            target: ''
 
     runs-on: ${{ matrix.platform }}
 
@@ -36,7 +39,7 @@ jobs:
           node-version: 20
 
       - name: Install Rust stable
-        uses: dtolnay/rust-action@stable
+        uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
 
@@ -74,10 +77,3 @@ jobs:
           releaseDraft: false
           prerelease: false
           args: ${{ matrix.args }}
-
-  create-release:
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch'
-    steps:
-      - run: echo "Release created by tauri-action"
